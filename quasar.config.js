@@ -57,6 +57,10 @@ module.exports = configure(function (/* ctx */) {
         browser: ['es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1'],
         node: 'node16'
       },
+      env: {
+        SUPABASE_URL: 'https://zkrfeboouyzzgdooikkh.supabase.co',
+        SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprcmZlYm9vdXl6emdkb29pa2toIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODg3NDIzMjcsImV4cCI6MjAwNDMxODMyN30.xJ0Q8EgYsAhBOL4zO-1dfuBbb71PuTA53buLMixtFXE'
+      },
 
       vueRouterMode: 'history' // available values: 'hash', 'history'
       // vueRouterBase,
@@ -115,7 +119,10 @@ module.exports = configure(function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['Dialog']
+      plugins: [
+        'Dialog',
+        'Notify'
+      ]
     },
 
     // animations: 'all', // --- includes all animations
