@@ -15,7 +15,9 @@ const routes = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: 'me', name: 'me', component: () => import('pages/Me.vue') }
+      { path: 'me', name: 'me', component: () => import('pages/Me.vue') },
+      { path: 'category', name: 'category', component: () => import('src/pages/category/ListCategory.vue') },
+      { path: 'form-category/:id?', name: 'form-category', component: () => import('src/pages/category/FormCategory.vue') }
     ],
     meta: {
       requiresAuth: true
