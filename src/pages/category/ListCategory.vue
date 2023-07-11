@@ -15,6 +15,7 @@
           </span>
           <q-space/>
           <q-btn
+            v-if="$q.platform.is.desktop"
             dense
             color="primary"
             icon="mdi-plus"
@@ -47,6 +48,15 @@
         </template>
       </q-table>
     </div>
+    <q-page-sticky position="bottom-right" :offset="[18, 18]">
+      <q-btn
+      v-if="$q.platform.is.mobile"
+        fab
+        icon="mdi-plus"
+        color="primary"
+        :to="{ name: 'form-category' }"
+      />
+    </q-page-sticky>
   </q-page>
 </template>
 
@@ -76,8 +86,8 @@ export default defineComponent({
     const { notifyError, notifySuccess } = useNotify()
     const router = useRouter()
     const $q = useQuasar()
-    const table = 'category'
 
+    const table = 'category'
     const loading = ref(true)
     const categories = ref([])
 
