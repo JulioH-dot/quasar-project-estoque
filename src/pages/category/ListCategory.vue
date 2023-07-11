@@ -38,7 +38,7 @@
                 Edit
               </q-tooltip>
             </q-btn>
-            <q-btn icon="mdi-delete-outline" color="negative" dense size="sm">
+            <q-btn icon="mdi-delete-outline" color="negative" dense size="sm" @click="handleRemoveCategory(props.row)">
               <q-tooltip>
                 Delete
               </q-tooltip>
@@ -67,13 +67,16 @@ import { defineComponent, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import useApi from 'src/composables/useApi'
 import useNotify from 'src/composables/UseNotify'
+import { useQuasar } from 'quasar'
 
 export default defineComponent({
   name: 'PageCategoryList',
   setup () {
-    const { list } = useApi()
-    const { notifyError } = useNotify()
+    const { list, remove } = useApi()
+    const { notifyError, notifySuccess } = useNotify()
     const router = useRouter()
+    const $q = useQuasar()
+    const table = 'category'
 
     const loading = ref(true)
     const categories = ref([])
@@ -81,8 +84,25 @@ export default defineComponent({
     const handlerListCategories = async () => {
       try {
         loading.value = true
-        categories.value = await list('category')
+        categories.value = await list(table)
         loading.value = false
+      } catch (error) {
+        notifyError(error.message)
+      }
+    }
+
+    const handleRemoveCategory = async (category) => {
+      try {
+        $q.dialog({
+          title: 'Confirm',
+          message: `Do you really delete ${category.name}`,
+          cancel: true,
+          persistent: true
+        }).onOk(async () => {
+          await remove(table, category.id)
+          notifySuccess('Successfully deleted')
+          handlerListCategories()
+        })
       } catch (error) {
         notifyError(error.message)
       }
@@ -101,6 +121,7 @@ export default defineComponent({
       categories,
       loading,
       handleEdit,
+      handleRemoveCategory,
       rows
     }
   }
