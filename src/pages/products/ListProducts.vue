@@ -3,28 +3,45 @@
     <div class="row">
       <q-table
         title="Treats"
-        :rows="categories"
-        :columns="columnsCategory"
+        :rows="products"
+        :columns="columnsProducts"
         row-key="id"
         class="col-12"
         :loading="loading"
       >
         <template v-slot:top>
           <span class="text-h6">
-            Category
+            Products
           </span>
+          <q-btn
+            label="My Store"
+            dense
+            size="sm"
+            class="q-ml-sm"
+            icon="mdi-store"
+            color="primary"
+            @click="handleGoToStore"
+          />
           <q-space/>
           <q-btn
             v-if="$q.platform.is.desktop"
             dense
             color="primary"
             icon="mdi-plus"
-            :to="{ name: 'form-category' }"
+            :to="{ name: 'form-product' }"
           >
             <q-tooltip>
               Add New
             </q-tooltip>
           </q-btn>
+        </template>
+        <template v-slot:body-cell-img_url="props">
+          <q-td :props="props">
+            <q-avatar v-if="props.row.img_url">
+              <img :src="props.row.img_url">
+            </q-avatar>
+            <q-avatar v-else color="grey" text-color="white" icon="mdi-image-off" />
+          </q-td>
         </template>
         <template v-slot:body-cell-actions="props">
           <q-td :props="props" class="q-gutter-x-sm">
@@ -39,7 +56,7 @@
                 Edit
               </q-tooltip>
             </q-btn>
-            <q-btn icon="mdi-delete-outline" color="negative" dense size="sm" @click="handleRemoveCategory(props.row)">
+            <q-btn icon="mdi-delete-outline" color="negative" dense size="sm" @click="handleRemoveProducts(props.row)">
               <q-tooltip>
                 Delete
               </q-tooltip>
@@ -54,7 +71,7 @@
         fab
         icon="mdi-plus"
         color="primary"
-        :to="{ name: 'form-category' }"
+        :to="{ name: 'form-product' }"
       />
     </q-page-sticky>
   </q-page>
@@ -69,64 +86,75 @@ const rows = [
 ]
 import { defineComponent, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
+import { columnsProducts } from './table'
+import useAuthUser from 'src/composables/UseAuthUser'
 import useApi from 'src/composables/useApi'
 import useNotify from 'src/composables/UseNotify'
-import { useQuasar } from 'quasar'
-import { columnsCategory } from './table'
 
 export default defineComponent({
-  name: 'PageCategoryList',
+  name: 'PageProductsList',
   setup () {
-    const { list, remove } = useApi()
+    const { listPublic, remove } = useApi()
     const { notifyError, notifySuccess } = useNotify()
     const router = useRouter()
     const $q = useQuasar()
 
-    const table = 'category'
-    const loading = ref(true)
-    const categories = ref([])
+    const { user } = useAuthUser()
 
-    const handlerListCategories = async () => {
+    const table = 'product'
+    const loading = ref(true)
+    const products = ref([])
+
+    const handlerListProducts = async () => {
       try {
         loading.value = true
-        categories.value = await list(table)
+        products.value = await listPublic(table, user.value.id)
         loading.value = false
       } catch (error) {
         notifyError(error.message)
       }
     }
 
-    const handleRemoveCategory = async (category) => {
+    const handleGoToStore = () => {
+      const idUser = user.value.id
+      console.log(idUser)
+      router.push({ name: 'product-public', params: { id: idUser } })
+    }
+
+    const handleRemoveProducts = async (products) => {
       try {
         $q.dialog({
           title: 'Confirm',
-          message: `Do you really delete ${category.name}`,
+          message: `Do you really delete ${products.name}`,
           cancel: true,
           persistent: true
         }).onOk(async () => {
-          await remove(table, category.id)
+          await remove(table, products.id)
           notifySuccess('Successfully deleted')
-          handlerListCategories()
+          handlerListProducts()
         })
       } catch (error) {
         notifyError(error.message)
       }
     }
 
-    const handleEdit = (category) => {
-      router.push({ name: 'form-category', params: { id: category.id } })
+    const handleEdit = (products) => {
+      router.push({ name: 'form-product', params: { id: products.id } })
     }
 
     onMounted(() => {
-      handlerListCategories()
+      console.log('user', user)
+      handlerListProducts()
     })
 
     return {
-      columnsCategory,
-      categories,
+      columnsProducts,
+      products,
       loading,
       handleEdit,
-      handleRemoveCategory,
+      handleRemoveProducts,
+      handleGoToStore,
       rows
     }
   }
