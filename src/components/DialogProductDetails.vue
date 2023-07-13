@@ -7,7 +7,7 @@
     <q-card>
       <q-card-section>
         <div class="text-h6">
-          Detalhes
+          Details
         </div>
       </q-card-section>
       <q-card-section v-if="product.img_url">
@@ -25,7 +25,8 @@
       <q-card-actions align="right">
         <q-btn label="Cancel" color="primary" outline v-close-popup />
         <q-btn
-          label="Fazer Pedido"
+          v-if="brand.phone"
+          label="Buy on Whatsapp"
           icon="mdi-whatsapp"
           color="green-7"
           @click="handleSendWhatsapp"
@@ -37,8 +38,9 @@
 
 <script>
 import { defineComponent } from 'vue'
-import { formatCurrency } from 'src/utils/Format'
 import { openURL } from 'quasar'
+import { formatCurrency } from 'src/utils/Format'
+import useApi from 'src/composables/useApi'
 
 export default defineComponent({
   name: 'DialogProductDetails',
@@ -52,22 +54,23 @@ export default defineComponent({
     }
   },
   setup (props, { emit }) {
-    const phone = '11983092569'
     const msg = 'Olá fiquei insteressado pelo produto: '
+    const { brand } = useApi()
 
     const handleClose = () => {
       emit('hideDialog')
     }
 
     const handleSendWhatsapp = () => {
-      const link = encodeURI(`https://api.whatsapp.com/send?phone=55${phone}&text=${msg} - ${props.product.name} - ${formatCurrency(props.product.price)}`)
+      const link = encodeURI(`https://api.whatsapp.com/send?phone=55${brand.value.phone}&text=${msg} - ${props.product.name} - ${formatCurrency(props.product.price)}`)
       openURL(link)
     }
 
     return {
       formatCurrency,
       handleSendWhatsapp,
-      handleClose
+      handleClose,
+      brand
     }
   }
 })
